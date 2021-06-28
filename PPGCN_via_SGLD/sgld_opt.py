@@ -10,7 +10,7 @@ from torch.optim.optimizer import Optimizer, required
 
 
 
-def adam(params: List[Tensor],
+def sgld(params: List[Tensor],
          grads: List[Tensor],
          exp_avgs: List[Tensor],
          exp_avg_sqs: List[Tensor],
@@ -24,9 +24,7 @@ def adam(params: List[Tensor],
          weight_decay: float,
          eps: float,
          std: float):
-    r"""Functional API that performs Adam algorithm computation.
-    See :class:`~torch.optim.Adam` for details.
-    """
+  
 
     for i, param in enumerate(params):
 
@@ -59,30 +57,8 @@ def adam(params: List[Tensor],
 
 
 
-class Adam(Optimizer):
-    r"""Implements Adam algorithm.
-    It has been proposed in `Adam: A Method for Stochastic Optimization`_.
-    The implementation of the L2 penalty follows changes proposed in
-    `Decoupled Weight Decay Regularization`_.
-    Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        betas (Tuple[float, float], optional): coefficients used for computing
-            running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        amsgrad (boolean, optional): whether to use the AMSGrad variant of this
-            algorithm from the paper `On the Convergence of Adam and Beyond`_
-            (default: False)
-    .. _Adam\: A Method for Stochastic Optimization:
-        https://arxiv.org/abs/1412.6980
-    .. _Decoupled Weight Decay Regularization:
-        https://arxiv.org/abs/1711.05101
-    .. _On the Convergence of Adam and Beyond:
-        https://openreview.net/forum?id=ryQu7f-RZ
-    """
+class SGLD(Optimizer):
+  
 
     def __init__(self, params, lr=1e-3, std = 0.01, betas=(0.9, 0.999), eps=1e-8,
                  weight_decay=0, amsgrad=False):
@@ -98,10 +74,10 @@ class Adam(Optimizer):
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
         defaults = dict(lr=lr, betas=betas,std=std, eps=eps,
                         weight_decay=weight_decay, amsgrad=amsgrad)
-        super(Adam, self).__init__(params, defaults)
+        super(SGLD, self).__init__(params, defaults)
 
     def __setstate__(self, state):
-        super(Adam, self).__setstate__(state)
+        super(SGLD, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('amsgrad', False)
 
@@ -157,7 +133,7 @@ class Adam(Optimizer):
                     # record the step after step update
                     state_steps.append(state['step'])
 
-            adam(params_with_grad,
+            sgld(params_with_grad,
                    grads,
                    exp_avgs,
                    exp_avg_sqs,

@@ -10,7 +10,7 @@ import argparse
 from data import CoraData
 from model import GCN_Net
 from utils import mkdir
-from adam_opt import Adam
+from sgld_opt import SGLD
 
 import numpy as np
 import scipy.sparse as sp
@@ -21,7 +21,6 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 
 
-# 超参数定义
 #learning_rate = 0.1
 #weight_decay = 5e-4
 #epochs = 200
@@ -57,15 +56,12 @@ mkdir(models_dir)
 mkdir(results_dir)
 
 
-# 模型定义：Model, Loss, Optimizer
+#Model, Loss, Optimizer
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = GCN_Net().to(device)
 criterion = nn.CrossEntropyLoss().to(device)
-#optimizer = SGLD(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
-optimizer = Adam(model.parameters(), lr=args.learning_rate, std=args.standard_error ,weight_decay=args.weight_decay)
-#optimizer = optim.SGD(model.parameters(), lr=0.6, weight_decay=0.001)
-#optimizer = SGD(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
-#optimizer = H_SA_SGHMC(model.parameters())
+optimizer = SGLD(model.parameters(), lr=args.learning_rate, std=args.standard_error ,weight_decay=args.weight_decay)
+
 
 
 
